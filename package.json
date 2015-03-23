@@ -1,6 +1,7 @@
 {
   "name": "application-name",
   "version": "0.0.1",
+  "author": "Jeff Brookshaw",
 "dependencies": {
   "dronestream": "git://github.com/felixge/node-dronestream.git#soccer",
   "ar-drone": "^0.3.2"
