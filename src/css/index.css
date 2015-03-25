@@ -1,0 +1,42 @@
+#track {
+    border:5px solid black;
+}
+#video{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+}
+
+#wrapper div{
+    text-align:center;
+}
+body{
+
+}
+#streams {
+    text-align:center;
+
+    margin-left:auto;
+    margin-right:auto;
+}
+.fixed-link {
+    position:fixed;
+    bottom:10px;
+    right: 10px;
+}
+.fixed-link2 {
+    position:fixed;
+    bottom:10px;
+    right: 60px;
+}
+.fixed-link3 {
+    position:fixed;
+    bottom:10px;
+    right: 110px;
+}
+header {
+    text-align:center;
+}
+#video canvas {
+    text-align:center;
+}
