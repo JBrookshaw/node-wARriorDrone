@@ -341,9 +341,7 @@ WsClient.prototype.stop = function() {
     this._send(['stop']);
 };
 
-//ANGULAR//
-
-
+//Listeners//
 
 $(function(){
 
@@ -362,7 +360,7 @@ $(function(){
         ns.getImageData(c, canvasX, h-canvasY, 1, 1);
 
 
-        var pixelColor = "rgba("+c[0]+", "+c[1]+", "+c[2]+")";
+        var pixelColor = "rgb("+c[0]+", "+c[1]+", "+c[2]+")";
        // console.log(pixelColor+"   "+canvasX+"   "+canvasY);
         $('#preview').css('background-color', pixelColor);
     });
@@ -383,16 +381,18 @@ $(function(){
         pickedColor[1] = c[1];
         pickedColor[2] = c[2];
        // alert(pixelColor);
-        var pixelColor = "rgba("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
+        var pixelColor = "rgb("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
         $('#preview').css('background-color', pixelColor);
-       // $('#rVal').val(c[0]);
-       // $('#gVal').val(c[1]);
-       // $('#bVal').val(c[2]);
-       //
-       // $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
-       // $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
-       // var dColor = c[2] + 256 * c[1] + 65536 * c[0];
-       // $('#hexVal').val( '#' + dColor.toString(16) );
+
+        //color info
+       $('#rVal').val(c[0]);
+       $('#gVal').val(c[1]);
+       $('#bVal').val(c[2]);
+
+       $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
+       $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
+       var dColor = c[2] + 256 * c[1] + 65536 * c[0];
+       $('#hexVal').val( '#' + dColor.toString(16) );
     });
 
 
