@@ -1,5 +1,7 @@
 var http = require("http"),
-    drone = require("dronestream");
+    drone = require("dronestream"),
+    ws = require('ws'),
+    cli = require("ar-drone").createClient();
 
 var staticDir = 'src',
     check = new RegExp('^/' + staticDir, 'i'),
@@ -33,6 +35,8 @@ function handler(req, res, next) {
     path = dist + req.url;
     console.log('checking static path: %s', path);
     read = require('fs').createReadStream(path);
+
+
     read.pipe(res);
     read.on('error', function (e) {
         console.log('Stream error: %s', e.message);
@@ -41,7 +45,50 @@ function handler(req, res, next) {
     return true;
 }
 
+var wsServer = new ws.Server({server: server});
+wsServer.on('connection', function(conn) {
+    function send(msg) {
+        conn.send(JSON.stringify(msg));
+    }
 
-drone.listen(server);
-server.listen(5555);
+    conn.on('message', function(msg) {
+        try {
+            msg = JSON.parse(msg);
+        } catch (err) {
+            console.log('err: '+err+': '+msg);
+        }
+        var kind = msg.shift();
+        switch (kind) {
+            case 'on':
+                var event = msg.shift();
+                cli.on(event, function(data) {
+                    send(['on', event, data]);
+                });
+                break;
+            case 'takeoff':
+                cli.takeoff(function() {
+                    send(['takeoff']);
+                });
+                break;
+            case 'land':
+                cli.land(function() {
+                    send(['land']);
+                });
+                break;
+            case 'right':
+                cli.right(msg[0]);
+                break;
+            case 'stop':
+                cli.stop();
+                break;
+            default:
+                console.log('unknown msg: '+kind);
+                break;
+        }
+    });
+});
+
+
+drone.listen(5555);
+server.listen(3000);
 

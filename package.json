@@ -1,9 +1,12 @@
 {
-  "name": "application-name",
+  "name": "node-wARriorDrone",
   "version": "0.0.1",
   "author": "Jeff Brookshaw",
-"dependencies": {
-  "dronestream": "git://github.com/felixge/node-dronestream.git#soccer",
-  "ar-drone": "^0.3.2"
-}
+  "dependencies": {
+    "send": "^0.3.0",
+    "ws": "^0.4.31",
+    "ar-drone": "^0.3.2",
+    "dronestream": "git://github.com/felixge/node-dronestream.git#soccer"
+
+  }
 }

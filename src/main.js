@@ -1,201 +1,72 @@
 
-//var videoDiv = document.getElementById('video');
-//var ns = new NodecopterStream(videoDiv, {port:5555});
-//var videoCanvas = videoDiv.querySelector('canvas');
-//var frameBuffer = new Uint8Array(videoCanvas.width * videoCanvas.height * 4);
-////var detect = detector({maxDiff: 0.7});
-//var pickedColor = [210,50,50];
-//var detected;
-//var client = new WsClient();
-//var xPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
-//var state;
-//setState('ground');
-//
-//var track = document.getElementById('track');
-//track.width = 640;
-//track.height = 360;
-//var ctx = track.getContext("2d");
-//ctx.fillStyle = "#FF0000";
-//
-//var maxDiff = 0.25;
-//var w = videoCanvas.width;
-//var h = videoCanvas.height;
-//var b = frameBuffer;
-//
-//setInterval(function(){
-//
-//    b = frameBuffer;
-//    var count = 0;
-//    var xSum = 0;
-//    var ySum = 0;
-//    ns.getImageData(b);
-//    for(var i =0; i < b.length; i+=4){
-//        var match = true;
-//        for (var j = 0; j < pickedColor.length; j++) {
-//
-//            var diffPercent = Math.abs(b[i+j]-pickedColor[j]) / 255;
-//            if (diffPercent > maxDiff) {
-//                match = false;
-//                break;
-//            }
-//        }
-//        if (match) {
-//            count++;
-//            var y = i/(w*4);
-//            var x = i%(w*4)/4;
-//            xSum += x;
-//            ySum += Math.abs(y - h);
-//            ctx.fillStyle = "rgb("+b[i]+","+b[i+1]+","+b[i+2]+")";
-//            ctx.fillRect(x,Math.abs(y - h),1,1);
-//            // ctx.fillRect(y,x,1,1);
-//        }
-//    }
-//    detected = {x: xSum / count, y: ySum /count};
-//
-//
-//    ctx.beginPath();
-//    ctx.moveTo(0,y);
-//    ctx.lineTo(645,detected.y);
-//    ctx.moveTo(detected.x,0);
-//    ctx.lineTo(detected.x,360);
-//    ctx.strokeStyle = "black";//"rgb(255,255,255)";
-//    ctx.stroke();
-//    ctx.closePath();
-//    var xVal = (detected.x - w / 2)/(w / 2);
-//    // ctx.fillRect(detected.x,Math.abs(detected.y - h),5,5);
-//    console.log("xVal: "+xVal+" #: "+count+" x: "+detected.x+ "  y:"+detected.y);
-//
-//}, 50);
-//
-//setInterval(function(){
-//     ctx.clearRect ( 0 , 0 , w, h);
-//}, 200);
-//
-
-//                var count = 0;
-//                var xSum = 0;
-//                var ySum = 0;
-//                for (var x = 0; x < w; x++) {
-//                    for (var y = 0; y < h; y++) {
-//                        var o = x*4+(h-y)*w*4;
-//                        var match = true;
-//                        for (var i = 0; i < pickedColor.length; i++) {
-//                            var diffPercent = Math.abs(b[o+i]-pickedColor[i]) / 255;
-//                            if (diffPercent > maxDiff) {
-//                                match = false;
-//                               // break;
-//                            }
-//                        }
-//                        if (match) {
-//                            count++;
-//                            xSum += x;
-//                            ySum += y;
-//                        }
-//                    }
-//                }
-//                detected = {x: xSum / count, y: ySum /count};
-//                var xVal = (detected.x - w / 2)/(w / 2);
-//                console.log("xVal: "+xVal+"    Count: "+count+" DetectedX: "+detected.x);
-//                xPID.update(xVal);
-//                if (state === 'follow') {
-//                    // client.right(-xPID.pid().sum);
-//                } else {
-//                    // client.stop();
-//                }
-//
-//
-
-
-//        // detector returns a function that tries to find a colored object in the image.
-//        function detector(options) {
-//            var maxDiff = options.maxDiff;
-//            var w = videoCanvas.width;
-//            var h = videoCanvas.height;
-//            var b = frameBuffer;
-//            return function detect() {
-//                ns.getImageData(b);
-//                var count = 0;
-//                var xSum = 0;
-//                var ySum = 0;
-//                for (var x = 0; x < w; x++) {
-//                    for (var y = 0; y < h; y++) {
-//                        var o = x*4+(h-y)*w*4;
-//                        var match = true;
-//                        for (var i = 0; i < pickedColor.length; i++) {
-//                            var diffPercent = Math.abs(b[o+i]-pickedColor[i]) / 255;
-//                            if (diffPercent > maxDiff) {
-//                                match = false;
-//                                break;
-//                            }
-//                        }
-//                        if (match) {
-//                            count++;
-//                            xSum += x;
-//                            ySum += y;
-//                        }
-//                    }
-//                }
-//                detected = {x: xSum / count, y: ySum /count};
-//                var xVal = (detected.x - w / 2)/(w / 2);
-//                console.log("xVal: "+xVal+"    Count: "+count);
-//                xPID.update(xVal);
-//                if (state === 'follow') {
-//                   // client.right(-xPID.pid().sum);
-//                } else {
-//                   // client.stop();
-//                }
-//            };
-//            ns.onNextFrame(frameLoop);
-//        }
-
-
 var myApp = angular.module('myApp',[]);
+
+var videoDiv = document.getElementById('video');
+var ns = new NodecopterStream(videoDiv, {port:5555});
+var videoCanvas = videoDiv.querySelector('canvas');
+var frameBuffer = new Uint8Array(videoCanvas.width * videoCanvas.height * 4);
+//var detect = detector({maxDiff: 0.7});
+var pickedColor = [192,60,60];
+var detected;
+var client = new WsClient();
+
+var xPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
+var yPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
+var zPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
+
+var track = document.getElementById('track');
+track.width = 640;
+track.height = 360;
+var ctx = track.getContext("2d");
+ctx.fillStyle = "#FF0000";
+
+//options
+var maxDiff = 0.20;
+var w = videoCanvas.width;
+var h = videoCanvas.height;
+var b = frameBuffer;
+var c = frameBuffer;
+var averagePixel;
+var count;
+var lastCount;
+
+//var testCtx = document.getElementById("test").getContext('2d');
+//
+//window.onload = function() {
+//    var img = document.getElementById("test-img");
+//    document.getElementById("test").getContext('2d').drawImage(img, 0, 0, 640,360);
+//
+//}
+
 
 myApp.controller('Controller', ['$scope', function($scope) {
 
     $scope.hi = 0;
 
-    var videoDiv = document.getElementById('video');
-    var ns = new NodecopterStream(videoDiv, {port:5555});
-    var videoCanvas = videoDiv.querySelector('canvas');
-    var frameBuffer = new Uint8Array(videoCanvas.width * videoCanvas.height * 4);
-//var detect = detector({maxDiff: 0.7});
-    var pickedColor = [192,60,60];
-    var detected;
-    var client = new WsClient();
-    var xPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
-    var state;
+    $scope.maxDiff = .1;
+
+    $scope.state;
     setState('ground');
 
-    var track = document.getElementById('track');
-    track.width = 640;
-    track.height = 360;
-    var ctx = track.getContext("2d");
-    ctx.fillStyle = "#FF0000";
 
-    var maxDiff = 0.25;
-    var w = videoCanvas.width;
-    var h = videoCanvas.height;
-    var b = frameBuffer;
-    var averagePixel;
 
     setInterval(function(){
-
+    $scope.maxDiff = $('#maxDiff').val();
         b = frameBuffer;
-        var count = 0;
+        count = 0;
         var xSum = 0;
         var ySum = 0;
         ns.getImageData(b);
+        //b=.getImageData(0,0,640,360).data
+
         averagePixel = {r: 0, g: 0, b:0};
         for(var i =0; i < b.length; i+=4){
-            averagePixel.r += b[i];
-            averagePixel.g += b[i+1];
-            averagePixel.b += b[i+2];
+
             var match = true;
             for (var j = 0; j < pickedColor.length; j++) {
 
                 var diffPercent = Math.abs(b[i+j]-pickedColor[j]) / 255;
-                if (diffPercent > maxDiff) {
+                if (diffPercent > $scope.maxDiff) {
                     match = false;
                     break;
                 }
@@ -209,18 +80,36 @@ myApp.controller('Controller', ['$scope', function($scope) {
                 ctx.fillStyle = "rgb("+b[i]+","+b[i+1]+","+b[i+2]+")";
                 ctx.fillRect(x,Math.abs(y - h),1,1);
                 // ctx.fillRect(y,x,1,1);
+
+                //Used for color surfing
+                averagePixel.r += b[i];
+                averagePixel.g += b[i+1];
+                averagePixel.b += b[i+2];
             }
         }
-        averagePixel.r = averagePixel.r/(b.length/4);
-        averagePixel.g = averagePixel.g/(b.length/4);
-        averagePixel.b = averagePixel.b/(b.length/4);
+        averagePixel.r = Math.round(averagePixel.r/count);
+        averagePixel.g = Math.round(averagePixel.g/count);
+        averagePixel.b = Math.round(averagePixel.b/count);
         $scope.hi = averagePixel.r;
         detected = {x: xSum / count, y: ySum /count};
+        if(count > 200){
+            if(averagePixel.r > pickedColor[0]){
+            pickedColor[0]++;
+            }else if(averagePixel.r < pickedColor[0]){ pickedColor[0]--;}
+            if(averagePixel.g > pickedColor[1]){
+                pickedColor[1]++;
+            }else if(averagePixel.g < pickedColor[1]){ pickedColor[1]--;}
+            if(averagePixel.b > pickedColor[2]){
+                pickedColor[2]++;
+            }else if(averagePixel.b < pickedColor[2]){ pickedColor[2]--;}
+
+lastCount = count;
+        }
 
 
         ctx.beginPath();
-        ctx.moveTo(0,y);
-        ctx.lineTo(645,detected.y);
+        ctx.moveTo(0,detected.y);
+        ctx.lineTo(640,detected.y);
         ctx.moveTo(detected.x,0);
         ctx.lineTo(detected.x,360);
         ctx.strokeStyle = "black";//"rgb(255,255,255)";
@@ -234,8 +123,26 @@ myApp.controller('Controller', ['$scope', function($scope) {
 
     setInterval(function(){
         ctx.clearRect ( 0 , 0 , w, h);
+
     }, 200);
 
+    var flightButton = document.getElementById('flight');
+    flightButton.addEventListener('click', function() {
+
+        if (this.textContent === 'Start') {
+            setState('takeoff');
+            client.takeoff(function() {
+                setState('follow');
+            });
+            this.textContent = 'Stop';
+        } else {
+            setState('land');
+            client.land(function() {
+                setState('ground');
+            });
+            this.textContent = 'Start';
+        }
+    });
 
 }]);
 
@@ -295,7 +202,7 @@ PID.prototype.pid = function() {
 
 function setState(val) {
     console.log('new state: '+val);
-    state = val;
+    this.state = val;
 }
 
 function WsClient() {
@@ -435,6 +342,66 @@ WsClient.prototype.stop = function() {
 };
 
 //ANGULAR//
+
+
+
+$(function(){
+
+
+
+
+    $('#video').mousemove(function(e) { // mouse move handler
+
+
+        var canvasOffset = {left: 100, top:73};
+        var canvasX = Math.floor(e.pageX - canvasOffset.left);
+        var canvasY = Math.floor(e.pageY - canvasOffset.top);
+
+
+        //ctx.readPixels(canvasX, canvasY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, c);
+        ns.getImageData(c, canvasX, h-canvasY, 1, 1);
+
+
+        var pixelColor = "rgba("+c[0]+", "+c[1]+", "+c[2]+")";
+       // console.log(pixelColor+"   "+canvasX+"   "+canvasY);
+        $('#preview').css('background-color', pixelColor);
+    });
+
+    $('#video').click(function(e) { // mouse click handler
+        c= frameBuffer;
+        var canvasOffset = {left: 100, top:73};
+        var canvasX = Math.floor(e.pageX - canvasOffset.left);
+        var canvasY = Math.floor(e.pageY - canvasOffset.top);
+
+        //var imageData = ctx.getImageData(canvasX, canvasY, 1, 1);
+       // ctx.readPixels(canvasX, canvasY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, c);
+
+        ns.getImageData(c, canvasX, h-canvasY, 1, 1);
+
+        //var pixelColor = "rgba("+c[0]+", "+c[1]+", "+c[2]+", "+c[3]+")";
+        pickedColor[0] = c[0];
+        pickedColor[1] = c[1];
+        pickedColor[2] = c[2];
+       // alert(pixelColor);
+        var pixelColor = "rgba("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
+        $('#preview').css('background-color', pixelColor);
+       // $('#rVal').val(c[0]);
+       // $('#gVal').val(c[1]);
+       // $('#bVal').val(c[2]);
+       //
+       // $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
+       // $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
+       // var dColor = c[2] + 256 * c[1] + 65536 * c[0];
+       // $('#hexVal').val( '#' + dColor.toString(16) );
+    });
+
+
+    //g.prototype.getImageData = function (a, b, c, d, e) {
+    //    var f = j.gl;
+    //    f.readPixels(b || 0, c || 0, d || k, e || l, f.RGBA, f.UNSIGNED_BYTE, a)
+    //}
+
+});
 
 
 
