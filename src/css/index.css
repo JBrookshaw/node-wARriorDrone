@@ -78,3 +78,9 @@ input{
     font-size: 18px;
     list-style: none;
 }
+
+#pickedColor{
+    height: 100px;
+    width: 100px;
+    background-color: #ffffff;
+}

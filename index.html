@@ -17,7 +17,7 @@
 <div id="leftWidgets" class="left">
 <button id="flight" class="btn">TakeOFF</button>
     <div id="preview"></div>
-    <input type="text" id="maxDiff" ngModel="maxDiff" />
+    <input type="text" value=".01" id="maxDiff" ngModel="maxDiff" />
 </div>
 <div id="streams" class="left">
     <div id="video" style="width: 640px; height: 360px"></div>
@@ -32,7 +32,9 @@
             <li id="gVal"></li>
             <li id="bVal"></li>
             <li id="hexVal"></li>
+            <li id="pixelCount"></li>
         </ul>
+        <div id="pickedColor"></div>
         </div>
     <img id="test-img" src="dronestream/../../../src/img/test.jpg"/>
     <a class="fixed-link3" href="http://www.nodecopter.com/"><img height="40" width="40"  src="dronestream/../../../src/img/nodecopter.png" alt="node copter"/></a>

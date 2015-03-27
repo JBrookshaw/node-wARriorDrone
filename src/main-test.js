@@ -62,6 +62,7 @@ myApp.controller('Controller', ['$scope', function($scope) {
 
 
     setInterval(function(){
+        ctx.clearRect ( 0 , 0 , w, h);
         $scope.maxDiff = $('#maxDiff').val();
         //b = frameBuffer;
         count = 0;
@@ -105,7 +106,7 @@ myApp.controller('Controller', ['$scope', function($scope) {
         averagePixel.b = Math.round(averagePixel.b/count);
         $scope.hi = averagePixel.r;
         detected = {x: xSum / count, y: ySum /count};
-        if(count > 200){
+        //if(count > 200){
             if(averagePixel.r > pickedColor[0]){
                 pickedColor[0]++;
             }else if(averagePixel.r < pickedColor[0]){ pickedColor[0]--;}
@@ -117,7 +118,12 @@ myApp.controller('Controller', ['$scope', function($scope) {
             }else if(averagePixel.b < pickedColor[2]){ pickedColor[2]--;}
 
             lastCount = count;
-        }
+            $('#pixelCount').html(lastCount);
+
+        $('#rVal').html("r"+pickedColor[0]);
+        $('#gVal').html("b"+pickedColor[1]);
+        $('#bVal').html("g"+pickedColor[2]);
+     //   }
 
 
         ctx.beginPath();
@@ -132,12 +138,12 @@ myApp.controller('Controller', ['$scope', function($scope) {
         // ctx.fillRect(detected.x,Math.abs(detected.y - h),5,5);
         console.log("|xVal: "+xVal+"|# Detected: "+count+"|X: "+Math.round(detected.x)+ "|Y: "+Math.round(detected.y)+"|AvgPixel: "+averagePixel.r);
 
-    }, 50);
+    }, 100);
 
-    setInterval(function(){
-        ctx.clearRect ( 0 , 0 , w, h);
-
-    }, 200);
+    //setInterval(function(){
+    //    ctx.clearRect ( 0 , 0 , w, h);
+    //
+    //}, 200);
 
     var flightButton = document.getElementById('flight');
     flightButton.addEventListener('click', function() {
@@ -364,7 +370,7 @@ $(function(){
     $('#testCanvas').mousemove(function(e) { // mouse move handler
 
 
-        var canvasOffset = {left: 100, top:73};
+        var canvasOffset = {left: 110, top:120};
         var canvasX = Math.floor(e.pageX - canvasOffset.left);
         var canvasY = Math.floor(e.pageY - canvasOffset.top);
 
@@ -383,7 +389,7 @@ $(function(){
 
     $('#testCanvas').click(function(e) { // mouse click handler
         c= frameBuffer;
-        var canvasOffset = {left: 100, top:73};
+        var canvasOffset = {left: 110, top:120};
         var canvasX = Math.floor(e.pageX - canvasOffset.left);
         var canvasY = Math.floor(e.pageY - canvasOffset.top);
 
@@ -397,7 +403,7 @@ $(function(){
         pickedColor[2] = c[2];
         // alert(pixelColor);
         var pixelColor = "rgb("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
-        $('#preview').css('background-color', pixelColor);
+        $('#pickedColor').css('background-color', pixelColor);
 
         //color info
         $('#rVal').html(c[0]);
@@ -407,10 +413,15 @@ $(function(){
         $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
         $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
         var dColor = c[2] + 256 * c[1] + 65536 * c[0];
-        $('#hexVal').val( '#' + dColor.toString(16) );
+        $('#hexVal').html( '#' + dColor.toString(16) );
     });
 
+    $('#pickedColor').click(function(e) {
 
+        $('#pixelCount').html(lastCount);
+
+
+    });
     //g.prototype.getImageData = function (a, b, c, d, e) {
     //    var f = j.gl;
     //    f.readPixels(b || 0, c || 0, d || k, e || l, f.RGBA, f.UNSIGNED_BYTE, a)
