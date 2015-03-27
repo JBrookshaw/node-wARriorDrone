@@ -345,7 +345,7 @@ WsClient.prototype.stop = function() {
 
 $(function(){
 
-
+    $('#testCanvas').hide();
 
 
     $('#video').mousemove(function(e) { // mouse move handler

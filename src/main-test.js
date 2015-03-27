@@ -1,3 +1,4 @@
+
 var myApp = angular.module('myApp',[]);
 
 var videoDiv = document.getElementById('video');
@@ -29,6 +30,26 @@ var averagePixel;
 var count;
 var lastCount;
 
+//var testCtx = document.getElementById("test").getContext('2d');
+//
+//window.onload = function() {
+//    var img = document.getElementById("test-img");
+//    document.getElementById("test").getContext('2d').drawImage(img, 0, 0, 640,360);
+//
+//}
+var img = document.getElementById('test-img');
+var tstctx;
+var imageData;
+window.onload = function(){
+
+    tstctx = document.getElementById('testCanvas').getContext('2d');
+    tstctx.drawImage(img, 0, 0, img.width/2, img.height/2);
+    imageData = tstctx.getImageData(0, 0, 640, 360);
+    b = imageData.data;
+
+}
+
+
 myApp.controller('Controller', ['$scope', function($scope) {
 
     $scope.hi = 0;
@@ -41,12 +62,16 @@ myApp.controller('Controller', ['$scope', function($scope) {
 
 
     setInterval(function(){
-    $scope.maxDiff = $('#maxDiff').val();
-        b = frameBuffer;
+        $scope.maxDiff = $('#maxDiff').val();
+        //b = frameBuffer;
         count = 0;
         var xSum = 0;
         var ySum = 0;
-        ns.getImageData(b);
+        //ns.getImageData(b);
+
+        //b=.getImageData(0,0,640,360).data
+        b = imageData.data;
+
         averagePixel = {r: 0, g: 0, b:0};
         for(var i =0; i < b.length; i+=4){
 
@@ -64,9 +89,9 @@ myApp.controller('Controller', ['$scope', function($scope) {
                 var y = i/(w*4);
                 var x = i%(w*4)/4;
                 xSum += x;
-                ySum += Math.abs(y - h);
+                ySum += Math.abs(y);
                 ctx.fillStyle = "rgb("+b[i]+","+b[i+1]+","+b[i+2]+")";
-                ctx.fillRect(x,Math.abs(y - h),1,1);
+                ctx.fillRect((x*2),(Math.abs(y)*2),1,1);
                 // ctx.fillRect(y,x,1,1);
 
                 //Used for color surfing
@@ -82,7 +107,7 @@ myApp.controller('Controller', ['$scope', function($scope) {
         detected = {x: xSum / count, y: ySum /count};
         if(count > 200){
             if(averagePixel.r > pickedColor[0]){
-            pickedColor[0]++;
+                pickedColor[0]++;
             }else if(averagePixel.r < pickedColor[0]){ pickedColor[0]--;}
             if(averagePixel.g > pickedColor[1]){
                 pickedColor[1]++;
@@ -91,15 +116,15 @@ myApp.controller('Controller', ['$scope', function($scope) {
                 pickedColor[2]++;
             }else if(averagePixel.b < pickedColor[2]){ pickedColor[2]--;}
 
-lastCount = count;
+            lastCount = count;
         }
 
 
         ctx.beginPath();
-        ctx.moveTo(0,detected.y);
-        ctx.lineTo(640,detected.y);
-        ctx.moveTo(detected.x,0);
-        ctx.lineTo(detected.x,360);
+        ctx.moveTo(0,(detected.y*2));
+        ctx.lineTo(640,(detected.y*2));
+        ctx.moveTo((detected.x*2),0);
+        ctx.lineTo((detected.x*2),360);
         ctx.strokeStyle = "black";//"rgb(255,255,255)";
         ctx.stroke();
         ctx.closePath();
@@ -328,22 +353,15 @@ WsClient.prototype.right = function(val) {
 WsClient.prototype.stop = function() {
     this._send(['stop']);
 };
-
-//ANGULAR//
-
-window.onload = function() {
-
-    var img = document.getElementById("test-img");
-    videoCanvas.getContext('webgl').drawImage(img, 10, 10);
-}
+var tstctx;
+//Listeners//
 
 
 $(function(){
 
+    $('#video').hide();
 
-
-
-    $('#video').mousemove(function(e) { // mouse move handler
+    $('#testCanvas').mousemove(function(e) { // mouse move handler
 
 
         var canvasOffset = {left: 100, top:73};
@@ -352,39 +370,44 @@ $(function(){
 
 
         //ctx.readPixels(canvasX, canvasY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, c);
-        ns.getImageData(c, canvasX, h-canvasY, 1, 1);
+        //ns.getImageData(c, canvasX, h-canvasY, 1, 1);
+
+        var imageData = tstctx.getImageData((canvasX/2), ((canvasY)/2), 1, 1);
+        var c = imageData.data;
 
 
-        var pixelColor = "rgba("+c[0]+", "+c[1]+", "+c[2]+")";
-       // console.log(pixelColor+"   "+canvasX+"   "+canvasY);
+        var pixelColor = "rgb("+c[0]+", "+c[1]+", "+c[2]+")";
+        // console.log(pixelColor+"   "+canvasX+"   "+canvasY);
         $('#preview').css('background-color', pixelColor);
     });
 
-    $('#video').click(function(e) { // mouse click handler
+    $('#testCanvas').click(function(e) { // mouse click handler
         c= frameBuffer;
         var canvasOffset = {left: 100, top:73};
         var canvasX = Math.floor(e.pageX - canvasOffset.left);
         var canvasY = Math.floor(e.pageY - canvasOffset.top);
 
-        //var imageData = ctx.getImageData(canvasX, canvasY, 1, 1);
-       // ctx.readPixels(canvasX, canvasY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, c);
-        ns.getImageData(c, canvasX, h-canvasY, 1, 1);
-       
+        //ns.getImageData(c, canvasX, h-canvasY, 1, 1);
+
+        var imageData = tstctx.getImageData((canvasX/2), ((canvasY)/2), 1, 1);
+        var c = imageData.data;
         //var pixelColor = "rgba("+c[0]+", "+c[1]+", "+c[2]+", "+c[3]+")";
         pickedColor[0] = c[0];
         pickedColor[1] = c[1];
         pickedColor[2] = c[2];
-       // alert(pixelColor);
-        var pixelColor = "rgba("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
+        // alert(pixelColor);
+        var pixelColor = "rgb("+pickedColor[0]+", "+pickedColor[1]+", "+pickedColor[2]+")";
         $('#preview').css('background-color', pixelColor);
-       // $('#rVal').val(c[0]);
-       // $('#gVal').val(c[1]);
-       // $('#bVal').val(c[2]);
-       //
-       // $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
-       // $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
-       // var dColor = c[2] + 256 * c[1] + 65536 * c[0];
-       // $('#hexVal').val( '#' + dColor.toString(16) );
+
+        //color info
+        $('#rVal').html(c[0]);
+        $('#gVal').html(c[1]);
+        $('#bVal').html(c[2]);
+
+        $('#rgbVal').val(c[0]+','+c[1]+','+c[2]);
+        $('#rgbaVal').val(c[0]+','+c[1]+','+c[2]+','+c[3]);
+        var dColor = c[2] + 256 * c[1] + 65536 * c[0];
+        $('#hexVal').val( '#' + dColor.toString(16) );
     });
 
 

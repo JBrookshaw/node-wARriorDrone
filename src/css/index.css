@@ -3,22 +3,17 @@
 
 }
 #video{
-    margin-left:auto;
-    margin-right:auto;
-    text-align:center;
+
 }
 
 #wrapper div{
-    text-align:center;
+
 }
 body{
-background-image: url('../img/blk-bg.png');
+//background-image: url('../img/blk-bg.png');
 }
 #streams {
-    text-align:center;
 
-    margin-left:auto;
-    margin-right:auto;
 }
 .fixed-link {
     position:fixed;
@@ -48,7 +43,7 @@ header {
     /*margin-left:5%;*/
 /*}*/
 #video canvas {
-    text-align:center;
+
 }
 
 #preview {
@@ -60,6 +55,26 @@ header {
 input{
     width:50px;
 }
+
 #test-img {
-   // display:none;
+    display:none;
+    width:640px;
+    height:360px;
+}
+
+#leftWidgets {
+    width:100px;
+    height: 360px;
+    background-image: url('../img/prpl-bg.png')
+}
+#rightWidgets {
+    width:100px;
+    height: 360px;
+    background-image: url('../img/prpl-bg.png')
+}
+
+.color-info {
+    color: white;
+    font-size: 18px;
+    list-style: none;
 }

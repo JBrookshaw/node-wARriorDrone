@@ -21,10 +21,19 @@
 </div>
 <div id="streams" class="left">
     <div id="video" style="width: 640px; height: 360px"></div>
-    <br>
-    <!--<canvas id="test" style="width: 640px; height: 360px;"></canvas>-->
+
+    <canvas id="testCanvas" style="width: 640px; height: 360px"></canvas>
+<br>
     <canvas id="track" style="width: 640px; height: 360px"></canvas>
 </div>
+    <div id="rightWidgets" class="left">
+        <ul class="color-info">
+            <li id="rVal"></li>
+            <li id="gVal"></li>
+            <li id="bVal"></li>
+            <li id="hexVal"></li>
+        </ul>
+        </div>
     <img id="test-img" src="dronestream/../../../src/img/test.jpg"/>
     <a class="fixed-link3" href="http://www.nodecopter.com/"><img height="40" width="40"  src="dronestream/../../../src/img/nodecopter.png" alt="node copter"/></a>
     <a class="fixed-link2" href="https://nodejs.org/"><img height="40" width="40"  src="dronestream/../../../src/img/nodejs.png" alt="node copter"/></a>
@@ -33,7 +42,7 @@
     <script src="/dronestream/../../../bower_components/angular/angular.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="/dronestream/../../../bower_components/bootstrap.css/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="//localhost:5555/dronestream/nodecopter-client.js" type="text/javascript" charset="utf-8"></script>
-<script src="dronestream/../../../src/main.js" type="text/javascript"></script>
+<script src="dronestream/../../../src/main-test.js" type="text/javascript"></script>
 </div>
 
 </body>
