@@ -5,7 +5,7 @@ var http = require("http"),
 
 //Turns on all nav data
 //cli.config('general:navdata_demo', 'FALSE');
-cli.batteryPercentage
+
 var staticDir = 'src',
     check = new RegExp('^/' + staticDir, 'i'),
     check2 = new RegExp('^/bower_components', 'i'),

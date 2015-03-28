@@ -5,8 +5,7 @@
   "dependencies": {
     "send": "^0.3.0",
     "ws": "^0.4.31",
-    "ar-drone": "^0.3.2",
+    "ar-drone": "git://github.com/felixge/node-ar-drone.git",
     "dronestream": "git://github.com/felixge/node-dronestream.git#soccer"
-
   }
 }

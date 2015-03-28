@@ -1,14 +1,7 @@
 #track {
     background-color: #f5f5f5;
-
-}
-#video{
-
 }
 
-#wrapper div{
-
-}
 body{
 //background-image: url('../img/blk-bg.png');
 }
@@ -32,16 +25,17 @@ body{
 }
 header {
     background-color: #f5f5f5;
-    text-align: center;
 }
+
+header img {
+    width:700px;
+    height:50px;
+}
+
 .left{
     float:left;
 }
-/*header img{*/
-    /*height:40px;*/
-    /*width: 410px;*/
-    /*margin-left:5%;*/
-/*}*/
+
 #video canvas {
 
 }
@@ -62,15 +56,29 @@ input{
     height:360px;
 }
 
-#leftWidgets {
-    width:100px;
+/*CSS for Left Widgets*/
+.widget-container {
+
+    width:200px;
     height: 360px;
     background-image: url('../img/prpl-bg.png')
 }
+.widget {
+    margin:15px;
+    padding:10px;
+    background-color: rgba(255,255,255,.5)
+}
+#leftWidgets {
+
+}
+
+#maxDiff {
+    width: 100%;
+}
+
+/*CSS for Right Widgets*/
 #rightWidgets {
-    width:100px;
-    height: 360px;
-    background-image: url('../img/prpl-bg.png')
+
 }
 
 .color-info {
