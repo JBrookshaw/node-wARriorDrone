@@ -122,15 +122,27 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             ctx.stroke();
             ctx.closePath();
             var xVal = (detected.x - w / 2) / (w / 2);
+            var yVal = (detected.y - h/2) / (h/2);
 
-        //surf();
+            var radi = getRadius(detected.x, detected.y);
+
+            var radidiff = 30-radi;
+            console.log("r "+radi+" dif"+radidiff);
 
             //Uncomment to log location info
             // console.log("|xVal: "+xVal+"|# Detected: "+count+"|X: "+Math.round(detected.x)+ "|Y: "+Math.round(detected.y)+"|AvgPixel: "+averagePixel.r);
 
             if (state === "follow" && !isNaN(xVal)) {
-                client.right(xVal / 6);
+                client.clockwise(xVal / 6);
+                //client.right(xVal/6);
+                client.up(-yVal / 6);
                 console.log(xVal / 6);
+                if(radidiff > 0){
+                    client.front(.05);
+                }
+                else{
+                    client.front(-.05);
+                }
             } else {
                 client.stop();
             }
@@ -407,6 +419,16 @@ WsClient.prototype.land = function (cb) {
 
 WsClient.prototype.right = function (val) {
     this._send(['right', val]);
+};
+WsClient.prototype.clockwise = function (val) {
+    this._send(['clockwise', val]);
+};
+WsClient.prototype.up = function (val) {
+    this._send(['up', val]);
+};
+
+WsClient.prototype.front = function (val) {
+    this._send(['front', val]);
 };
 
 WsClient.prototype.stop = function () {

@@ -369,18 +369,15 @@ $(function(){
 
     $('#testCanvas').mousemove(function(e) { // mouse move handler
 
-
         var canvasOffset = {left: 110, top:120};
         var canvasX = Math.floor(e.pageX - canvasOffset.left);
         var canvasY = Math.floor(e.pageY - canvasOffset.top);
-
 
         //ctx.readPixels(canvasX, canvasY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, c);
         //ns.getImageData(c, canvasX, h-canvasY, 1, 1);
 
         var imageData = tstctx.getImageData((canvasX/2), ((canvasY)/2), 1, 1);
         var c = imageData.data;
-
 
         var pixelColor = "rgb("+c[0]+", "+c[1]+", "+c[2]+")";
         // console.log(pixelColor+"   "+canvasX+"   "+canvasY);

@@ -81,6 +81,15 @@ wsServer.on('connection', function(conn) {
             case 'right':
                 cli.right(msg[0]);
                 break;
+            case 'up':
+            cli.up(msg[0]);
+            break;
+            case 'clockwise':
+                cli.clockwise(msg[0]);
+                break;
+            case 'front':
+                cli.front(msg[0]);
+                break;
             case 'stop':
                 cli.stop();
                 break;
