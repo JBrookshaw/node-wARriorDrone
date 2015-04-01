@@ -15,7 +15,7 @@
 <div id="wrapper">
 <div id="leftWidgets" class="widget-container left">
 <button id="flight" class="btn">TakeOFF</button>
-    <div id="preview"></div>
+
         <div class="widget">
             <label for="maxDiff">Color Sensitivity: {{maxDiff}}</label>
             <input type="range" value="10" id="maxDiff" ng-model="maxDiff" min="1" max="1000">
@@ -27,19 +27,26 @@
 </div>
 <div id="streams" class="left">
     <div id="video" style="width: 640px; height: 360px"></div>
-    <canvas id="testCanvas" ng-click="surf()" style="width: 640px; height: 360px"></canvas>
+    <canvas id="testCanvas" style="width: 640px; height: 360px"></canvas>
     <br>
     <canvas id="track" class="" style="width: 640px; height: 360px"></canvas>
 </div>
-    <div id="rightWidgets" class="widget-container left">
+    <div id="rightWidgets" ng-click="setTargetRadius()" class="widget-container left">
+        <div id="pickedColor">
+        <h4>Detected Color</h4>
         <ul class="color-info">
             <li id="rVal"></li>
             <li id="gVal"></li>
             <li id="bVal"></li>
             <li id="hexVal"></li>
-            <li id="pixelCount"></li>
         </ul>
-        <div id="pickedColor"></div>
+
+        </div>
+        <div id="preview">
+        <h4>Hover Color</h4>
+       </div>
+        <h4 class="widget" id="pixelCount"></h4>
+        <h4 class="widget" id="targetRadius"></h4>
         </div>
     <img id="test-img" src="dronestream/../../../src/img/test.jpg"/>
     <a class="fixed-link3" href="http://www.nodecopter.com/"><img height="40" width="40"  src="dronestream/../../../src/img/nodecopter.png" alt="node copter"/></a>

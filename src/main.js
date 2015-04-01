@@ -4,11 +4,11 @@ var videoDiv = document.getElementById('video');
 var ns = new NodecopterStream(videoDiv, {port: 5555});
 var videoCanvas = videoDiv.querySelector('canvas');
 var frameBuffer = new Uint8Array(videoCanvas.width * videoCanvas.height * 4);
-//var detect = detector({maxDiff: 0.7});
 var pickedColor = [192, 60, 60];
 var detected;
 var client = new WsClient();
 
+//TODO replace xVal/yVal with PID controllers
 var xPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
 var yPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
 var zPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
@@ -30,9 +30,11 @@ var count;
 var lastCount;
 var state;
 
-
 myApp.controller('Controller', ['$scope', function ($scope) {
-
+   // client.on('navdata', console.log);
+    client.on('navdata', function loginNavData(navdata){
+        console.log("altitude: " +navdata.demo.altitudeMeters+" battery: "+ navdata.demo.batteryPercentage);
+    })
     $scope.maxDiff = 100;
     $scope.accuracy = 3;
     $scope.fps = 1;
@@ -42,7 +44,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
 
     var y;
     var x;
-    $scope.mainLoop = function(){
+    $scope.mainLoop = function(){ //main function for reading drone stream and rendering detection visualization
 
             clearInterval(interval);
             ctx.clearRect(0, 0, w, h);
@@ -107,9 +109,10 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             //color info
             var pixelColor = "rgb(" + pickedColor[0] + ", " + pickedColor[1] + ", " + pickedColor[2] + ")";
             $('#pickedColor').css('background-color', pixelColor);
-            $('#rVal').html("r" + pickedColor[0]);
-            $('#gVal').html("b" + pickedColor[1]);
-            $('#bVal').html("g" + pickedColor[2]);
+            $('#rVal').html("r: " + pickedColor[0]);
+            $('#gVal').html("b: " + pickedColor[1]);
+            $('#bVal').html("g: " + pickedColor[2]);
+            $('#targetRadius').html("radius: " + $scope.targetRadius);
             lastCount = count;
 
             //draw cross-hairs at center of detected object
@@ -126,12 +129,13 @@ myApp.controller('Controller', ['$scope', function ($scope) {
 
             var radi = getRadius(detected.x, detected.y);
 
-            var radidiff = 30-radi;
+            var radidiff = radi-$scope.targetRadius;
             console.log("r "+radi+" dif"+radidiff);
 
             //Uncomment to log location info
             // console.log("|xVal: "+xVal+"|# Detected: "+count+"|X: "+Math.round(detected.x)+ "|Y: "+Math.round(detected.y)+"|AvgPixel: "+averagePixel.r);
 
+        //If tracking a color submit movement commands based on how far the detected object is from the center of the field of view
             if (state === "follow" && !isNaN(xVal)) {
                 client.clockwise(xVal / 6);
                 //client.right(xVal/6);
@@ -151,54 +155,16 @@ myApp.controller('Controller', ['$scope', function ($scope) {
 
     var interval = setInterval($scope.mainLoop, $scope.fps);
 
-    var surf = function(){ var sX = detected.x; var sY = detected.y;
-
-        var s = frameBuffer;
-
-        var radius = getRadius(sX,sY);
-        console.log("sx:"+sX+" sy: "+sY+"  rad "+ radius);
-        ns.getImageData(s, sX-radius, h - sY+radius, radius, radius);
-
-        var length = radius*4;
-        ctx.fillRect(sX-radius, sY+radius, radius, radius);
-
-
-
-
-
-
-
-
-
-
-
-
-        //for(var p =0; p <40; p+=4) {
-        //    console.log(s[p]+" "+s[p+1]+" "+s[p+2]);
-        //    var tY = p / (w * 4);
-        //    var tX = p % (w * 4) / 4;
-        //    var data = ctx.getImageData(tX+1,Math.abs(tY - h)+1, 2, 2).data;
-        //
-        //    for(var q =0; q < 16; q+=4){
-        //    var isMatch = (Math.abs(b[q] - pickedColor[0]) / 255 < maxDiff
-        //                        && Math.abs(b[q+1] - pickedColor[1]) / 255 < maxDiff
-        //                        && Math.abs(b[q+2] - pickedColor[2]) / 255 < maxDiff);
-        //    if (isMatch) {
-        //        ctx.fillStyle = "rgb(" + b[i] + "," + b[i + 1] + "," + b[i + 2] + ")";
-        //        ctx.fillRect(x, Math.abs(y - h), 1, 1);
-        //    }
-        //}
-        //
-        //
-        //}
+    //Sets the radius that the drone will attempt to maintain while tracking
+    $scope.targetRadius = 0;
+    $scope.setTargetRadius = function() {
+        $scope.targetRadius = getRadius(detected.x, detected.y);
     }
 
     function getRadius(xCenter, yCenter){
         var s = frameBuffer;
         var xDis = Math.abs(w-xCenter);
         ns.getImageData(s, xCenter, h-yCenter, xDis, 1);
-
-
             var farthest = 0;
         for(var i=0; i < (xDis*4);i+=4){
             var isMatch = (Math.abs(s[i] - pickedColor[0]) / 255 < maxDiff
@@ -230,7 +196,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
 
 }]);
 
-
+//TODO convert autonomous flight to use PID controller
 function PID(options) {
     this._pGain = options.pGain || 0;
     this._iGain = options.iGain || 0;
@@ -289,7 +255,7 @@ function setState(val) {
     this.state = val;
 }
 
-function WsClient() {
+function WsClient() { //WsClient sends drone flight commands to the server
     this._conn = null;
     this._connected = false;
     this._queue = [];
@@ -436,7 +402,6 @@ WsClient.prototype.stop = function () {
 };
 
 //Listeners//
-
 $(function () {
 
     $('#testCanvas').hide();
@@ -484,7 +449,7 @@ $(function () {
     });
 
     setInterval(function updateUIPixelCount() {
-        $('#pixelCount').html(lastCount);
+        $('#pixelCount').html("# Pixels "+lastCount);
     }, 300);
 
 });

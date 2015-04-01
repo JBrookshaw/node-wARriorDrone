@@ -13,16 +13,19 @@ body{
     bottom:10px;
     right: 10px;
 }
+
 .fixed-link2 {
     position:fixed;
     bottom:10px;
     right: 60px;
 }
+
 .fixed-link3 {
     position:fixed;
     bottom:10px;
     right: 110px;
 }
+
 header {
     background-color: #f5f5f5;
 }
@@ -41,9 +44,10 @@ header img {
 }
 
 #preview {
-    height: 100px;
-    width: 100px;
     background-color: #ffffff;
+    clear:both;
+    color:#f5f5f5;
+    padding:10px;
 }
 
 input{
@@ -55,17 +59,27 @@ input{
     width:640px;
     height:360px;
 }
+h4{
+    clear:both;
+}
+
+#targetRadius {
+    background-color: seashell;
+    text-align: center;
+    padding:5px;
+    cursor:pointer;
+}
 
 /*CSS for Left Widgets*/
 .widget-container {
 
     width:200px;
-    height: 360px;
+    height: 720px;
     background-image: url('../img/prpl-bg.png')
 }
 .widget {
-    margin:15px;
-    padding:10px;
+    margin:5px;
+    padding:5px;
     background-color: rgba(255,255,255,.5)
 }
 #leftWidgets {
@@ -82,13 +96,17 @@ input{
 }
 
 .color-info {
-    color: white;
+
     font-size: 18px;
     list-style: none;
 }
-
+.color-info li {
+    display:inline;
+    padding:5px;
+    font-size:16px;
+}
 #pickedColor{
-    height: 100px;
-    width: 100px;
     background-color: #ffffff;
+    color:#f5f5f5;
+    padding:10px;
 }
