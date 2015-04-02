@@ -30,15 +30,25 @@ var count;
 var lastCount;
 var state;
 
+
+var CameraModes = {FRONT_FOLLOW:"front-follow", BOTTOM_FOLLOW:"bottom-follow"};
+var camera_mode = CameraModes.FRONT_FOLLOW;
+
 myApp.controller('Controller', ['$scope', function ($scope) {
-   // client.on('navdata', console.log);
+   var tempNavdata;
     client.on('navdata', function loginNavData(navdata){
-        console.log("altitude: " +navdata.demo.altitudeMeters+" battery: "+ navdata.demo.batteryPercentage);
-    })
+        if(navdata != null && navdata.demo != null) {
+            console.log("altitude: " + navdata.demo.altitudeMeters + " battery: " + navdata.demo.batteryPercentage);
+            $scope.battery = navdata.demo.batteryPercentage;
+            tempNavdata = navdata;
+            $('#battery').attr('value', navdata.demo.batteryPercentage)
+        }
+    });
     $scope.maxDiff = 100;
     $scope.accuracy = 3;
     $scope.fps = 1;
     $scope.fps = 200;
+    $scope.battery;
 
     setState('ground');
 
@@ -113,6 +123,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             $('#gVal').html("b: " + pickedColor[1]);
             $('#bVal').html("g: " + pickedColor[2]);
             $('#targetRadius').html("radius: " + $scope.targetRadius);
+
             lastCount = count;
 
             //draw cross-hairs at center of detected object
@@ -130,25 +141,40 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             var radi = getRadius(detected.x, detected.y);
 
             var radidiff = radi-$scope.targetRadius;
-            console.log("r "+radi+" dif"+radidiff);
+
+            //Uncomment for radius logs
+            //console.log("r "+radi+" dif"+radidiff);
 
             //Uncomment to log location info
             // console.log("|xVal: "+xVal+"|# Detected: "+count+"|X: "+Math.round(detected.x)+ "|Y: "+Math.round(detected.y)+"|AvgPixel: "+averagePixel.r);
 
         //If tracking a color submit movement commands based on how far the detected object is from the center of the field of view
             if (state === "follow" && !isNaN(xVal)) {
-                client.clockwise(xVal / 6);
-                //client.right(xVal/6);
-                client.up(-yVal / 6);
-                console.log(xVal / 6);
-                if(radidiff > 0){
-                    client.front(.05);
+                if (camera_mode == CameraModes.FRONT_FOLLOW) {
+                    client.clockwise(xVal / 6);
+                    //client.right(xVal/6);
+                    client.up(-yVal / 6);
+                    console.log(xVal / 6);
+                    if (radidiff > 0) {
+                        client.front(.05);
+                    }
+                    else {
+                        client.front(-.05);
+                    }
+                } else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
+                    client.right(xVal/6);
+                    client.front(-yVal/6);
+
+                    if(tempNavdata.demo.altitudeMeters < 3.5)
+                         client.up(.05)
+                    else client.up(-.05);
+
                 }
-                else{
-                    client.front(-.05);
+                else {
+                    client.stop();
                 }
             } else {
-                client.stop();
+                client.stop()
             }
         interval = setInterval($scope.mainLoop, $scope.fps);
     }
@@ -159,6 +185,19 @@ myApp.controller('Controller', ['$scope', function ($scope) {
     $scope.targetRadius = 0;
     $scope.setTargetRadius = function() {
         $scope.targetRadius = getRadius(detected.x, detected.y);
+    }
+
+    $scope.switchCamera = function() {
+        // access the head camera
+
+        client.camera();
+        if(camera_mode == CameraModes.FRONT_FOLLOW){
+            camera_mode = CameraModes.BOTTOM_FOLLOW;
+        }
+        else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
+            camera_mode = CameraModes.FRONT_FOLLOW;
+        }
+            console.log(camera_mode);
     }
 
     function getRadius(xCenter, yCenter){
@@ -399,6 +438,9 @@ WsClient.prototype.front = function (val) {
 
 WsClient.prototype.stop = function () {
     this._send(['stop']);
+};
+WsClient.prototype.camera = function () {
+    this._send(['camera']);
 };
 
 //Listeners//

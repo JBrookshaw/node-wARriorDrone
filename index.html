@@ -24,6 +24,13 @@
             <label for="fps">Speed: {{fps}}</label>
             <input type="range" value="2" id="fps" ng-model="fps" min="25" max="500">
     </div>
+    <div class="widget">
+    <h4>Battery:</h4>
+    <progress id="battery" max="100" value={{battery}} >Battery Meter</progress>
+    </div>
+    <div id="switchCamera">
+        <button ng-click="switchCamera()">Switch Camera</button>
+    </div>
 </div>
 <div id="streams" class="left">
     <div id="video" style="width: 640px; height: 360px"></div>

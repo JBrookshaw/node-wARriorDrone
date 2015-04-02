@@ -6,6 +6,7 @@
     "send": "^0.3.0",
     "ws": "^0.4.31",
     "ar-drone": "git://github.com/felixge/node-ar-drone.git",
-    "dronestream": "git://github.com/felixge/node-dronestream.git#soccer"
+    "dronestream": "git://github.com/felixge/node-dronestream.git#soccer",
+    "keypress": "latest"
   }
 }

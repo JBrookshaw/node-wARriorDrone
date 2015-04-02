@@ -1,11 +1,12 @@
 var http = require("http"),
     drone = require("dronestream"),
-    ws = require('ws'),
+    ws = require("ws"),
     cli = require("ar-drone").createClient();
+    //keypress = require("keypress");
 
 //Turns on all nav data
 //cli.config('general:navdata_demo', 'FALSE');
-
+cli.config('video:video_channel', 0);
 var staticDir = 'src',
     check = new RegExp('^/' + staticDir, 'i'),
     check2 = new RegExp('^/bower_components', 'i'),
@@ -39,7 +40,6 @@ function handler(req, res, next) {
     console.log('checking static path: %s', path);
     read = require('fs').createReadStream(path);
 
-
     read.pipe(res);
     read.on('error', function (e) {
         console.log('Stream error: %s', e.message);
@@ -53,7 +53,7 @@ wsServer.on('connection', function(conn) {
     function send(msg) {
         conn.send(JSON.stringify(msg));
     }
-
+    var cameraMode = 0;
     conn.on('message', function(msg) {
         try {
             msg = JSON.parse(msg);
@@ -93,13 +93,54 @@ wsServer.on('connection', function(conn) {
             case 'stop':
                 cli.stop();
                 break;
+            case 'camera':
+                if(cameraMode==0) {
+                    cli.config('video:video_channel', 3);
+                    cameraMode=3;
+                } else {
+                    cli.config('video:video_channel', 0);
+                    cameraMode=0;
+                }
+
+                break;
             default:
                 console.log('unknown msg: '+kind);
                 break;
         }
     });
 });
-
+//keypress(process.stdin);
+//
+//process.stdin.on('keypress', function (ch, key) {
+//
+//    if (key && key.name == 'space') {
+//        console.log('Takeoff!');
+//        cli.takeoff();
+//    }
+//
+//    if (key && key.name == 'l') {
+//        console.log('Land!');
+//        cli.stop(); // stop moving before landing
+//        cli.land();
+//    }
+//
+//    if (key && key.ctrl && key.name == 'c') {
+//        console.log('Quitting')
+//        process.stdin.pause();
+//
+//        // Land the drone incase it's flying
+//        cli.stop();
+//        cli.land();
+//
+//        // close the connection to the drone
+//        // stops your process hanging
+//        client._udpControl.close();
+//    }
+//
+//});
+//
+////process.stdin.setRawMode(true);
+//process.stdin.resume();
 
 drone.listen(5555);
 server.listen(3000);
