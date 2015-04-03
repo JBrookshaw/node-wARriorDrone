@@ -38,8 +38,9 @@ myApp.controller('Controller', ['$scope', function ($scope) {
    var tempNavdata;
     client.on('navdata', function loginNavData(navdata){
         if(navdata != null && navdata.demo != null) {
-            console.log("altitude: " + navdata.demo.altitudeMeters + " battery: " + navdata.demo.batteryPercentage);
+            //console.log("altitude: " + navdata.demo.altitudeMeters + " battery: " + navdata.demo.batteryPercentage);
             $scope.battery = navdata.demo.batteryPercentage;
+            $scope.altitude = navdata.demo.altitudeMeters;
             tempNavdata = navdata;
             $('#battery').attr('value', navdata.demo.batteryPercentage)
         }
@@ -49,92 +50,24 @@ myApp.controller('Controller', ['$scope', function ($scope) {
     $scope.fps = 1;
     $scope.fps = 200;
     $scope.battery;
+    $scope.altitude;
+    $scope.altitudeTarget = 1;
 
     setState('ground');
 
     var y;
     var x;
     $scope.mainLoop = function(){ //main function for reading drone stream and rendering detection visualization
-
             clearInterval(interval);
             ctx.clearRect(0, 0, w, h);
-            var maxDiff = $scope.maxDiff /3000;
-            var accuracy = $scope.accuracy *4;
 
-            b = frameBuffer;
-            count = 0;
-            var xSum = 0;
-            var ySum = 0;
-            ns.getImageData(b);
-
-            averagePixel = {r: 0, g: 0, b: 0};
-            for (var i = 0; i < b.length; i += accuracy) {
-
-                var match = true;
-                for (var j = 0; j < pickedColor.length; j++) {
-
-                    var diffPercent = Math.abs(b[i + j] - pickedColor[j]) / 255;
-                    if (diffPercent > maxDiff) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match) {
-                    count++;
-                    y = i / (w * 4);
-                    x = i % (w * 4) / 4;
-                    xSum += x;
-                    ySum += Math.abs(y - h);
-                    ctx.fillStyle = "rgb(" + b[i] + "," + b[i + 1] + "," + b[i + 2] + ")";
-                    ctx.fillRect(x, Math.abs(y - h), 1, 1);
-
-                    //Used for color surfing
-                    averagePixel.r += b[i];
-                    averagePixel.g += b[i + 1];
-                    averagePixel.b += b[i + 2];
-                }
-            }
-            averagePixel.r = Math.round(averagePixel.r / count);
-            averagePixel.g = Math.round(averagePixel.g / count);
-            averagePixel.b = Math.round(averagePixel.b / count);
-            $scope.hi = averagePixel.r;
-            detected = {x: xSum / count, y: ySum / count};
-
-            if (averagePixel.r > pickedColor[0]) {
-                pickedColor[0]++;
-            } else if (averagePixel.r < pickedColor[0]) {
-                pickedColor[0]--;
-            }
-            if (averagePixel.g > pickedColor[1]) {
-                pickedColor[1]++;
-            } else if (averagePixel.g < pickedColor[1]) {
-                pickedColor[1]--;
-            }
-            if (averagePixel.b > pickedColor[2]) {
-                pickedColor[2]++;
-            } else if (averagePixel.b < pickedColor[2]) {
-                pickedColor[2]--;
-            }
-
+            //main color detection method and optimizes the color range
+            detectColor();
             //color info
-            var pixelColor = "rgb(" + pickedColor[0] + ", " + pickedColor[1] + ", " + pickedColor[2] + ")";
-            $('#pickedColor').css('background-color', pixelColor);
-            $('#rVal').html("r: " + pickedColor[0]);
-            $('#gVal').html("b: " + pickedColor[1]);
-            $('#bVal').html("g: " + pickedColor[2]);
-            $('#targetRadius').html("radius: " + $scope.targetRadius);
-
-            lastCount = count;
-
+            updateUIText();
             //draw cross-hairs at center of detected object
-            ctx.beginPath();
-            ctx.moveTo(0, detected.y);
-            ctx.lineTo(640, detected.y);
-            ctx.moveTo(detected.x, 0);
-            ctx.lineTo(detected.x, 360);
-            ctx.strokeStyle = "black";
-            ctx.stroke();
-            ctx.closePath();
+            drawCrossHair(detected.x,detected.y);
+
             var xVal = (detected.x - w / 2) / (w / 2);
             var yVal = (detected.y - h/2) / (h/2);
 
@@ -143,31 +76,44 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             var radidiff = radi-$scope.targetRadius;
 
             //Uncomment for radius logs
-            //console.log("r "+radi+" dif"+radidiff);
+           // console.log("r "+radi+" dif"+radidiff);
 
             //Uncomment to log location info
             // console.log("|xVal: "+xVal+"|# Detected: "+count+"|X: "+Math.round(detected.x)+ "|Y: "+Math.round(detected.y)+"|AvgPixel: "+averagePixel.r);
 
         //If tracking a color submit movement commands based on how far the detected object is from the center of the field of view
-            if (state === "follow" && !isNaN(xVal)) {
+            if (state === "follow" && !isNaN(xVal) && !isNaN(yVal)) {
                 if (camera_mode == CameraModes.FRONT_FOLLOW) {
-                    client.clockwise(xVal / 6);
-                    //client.right(xVal/6);
-                    client.up(-yVal / 6);
-                    console.log(xVal / 6);
-                    if (radidiff > 0) {
-                        client.front(.05);
-                    }
-                    else {
-                        client.front(-.05);
-                    }
-                } else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
-                    client.right(xVal/6);
-                    client.front(-yVal/6);
+                    followFront(xVal,yVal,radi,radidiff);
+                    //TODO TEST THIS
+                    //orbit(xVal,yVal,radi,radidiff);
 
-                    if(tempNavdata.demo.altitudeMeters < 3.5)
-                         client.up(.05)
-                    else client.up(-.05);
+
+                    //client.clockwise(xVal / 6);
+                    ////client.right(xVal/6);
+                    //client.up(-yVal / 6);
+                    //console.log(xVal / 6);
+                    //if(radi > 10) {
+                    //    if (radidiff < 0) {
+                    //        client.front(.05);
+                    //    }
+                    //    else if(radidiff > 0) {
+                    //        client.front(-.05);
+                    //    }
+                    //} else{
+                    //    client.stop();
+                    //}
+                } else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
+                    followBottom(xVal,yVal);
+                    //client.right(xVal/6);
+                    //client.front(-yVal/6);
+                    //console.log($scope.altitude);
+                    //if($scope.altitude < $scope.altitudeTarget) {
+                    //    client.up(.05);
+                    //}
+                    //else {
+                    //    client.up(-.05);
+                    //}
 
                 }
                 else {
@@ -199,21 +145,161 @@ myApp.controller('Controller', ['$scope', function ($scope) {
         }
             console.log(camera_mode);
     }
+    function followBottom(xVal,yVal){
+        client.right(xVal/6);
+        client.front(-yVal/6);
+        console.log($scope.altitude);
+        if($scope.altitude < $scope.altitudeTarget) {
+            client.up(.05);
+        }
+        else {
+            client.up(-.05);
+        }
 
+    }
+    function followFront(xVal, yVal, radi, radidiff){
+        client.clockwise(xVal / 6);
+        client.up(-yVal / 6);
+        if(radi > 10) {
+            if (radidiff < 0) {
+                client.front(.05);
+            }
+            else if(radidiff > 0) {
+                client.front(-.05);
+            }
+        } else{
+            client.stop();
+        }
+    }
+
+    function orbit(xVal,yVal,radi, radidiff) {
+        client.clockwise(xVal / 4);
+        client.right(.1);
+        client.up(-yVal / 6);
+        if(radi > 10) {
+            if (radidiff < 0) {
+                client.front(.05);
+            }
+            else if(radidiff > 0) {
+                client.front(-.05);
+            }
+        } else{
+            client.stop();
+        }
+    }
+    function detectColor(){
+        var maxDiff = $scope.maxDiff /3000;
+        var accuracy = $scope.accuracy *4;
+
+        b = frameBuffer;
+        count = 0;
+        var xSum = 0;
+        var ySum = 0;
+        ns.getImageData(b);
+        averagePixel = {r: 0, g: 0, b: 0};
+        for (var i = 0; i < b.length; i += accuracy) {
+
+            var match = true;
+            for (var j = 0; j < pickedColor.length; j++) {
+
+                var diffPercent = Math.abs(b[i + j] - pickedColor[j]) / 255;
+                if (diffPercent > maxDiff) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                count++;
+                y = i / (w * 4);
+                x = i % (w * 4) / 4;
+                xSum += x;
+                ySum += Math.abs(y - h);
+                ctx.fillStyle = "rgb(" + b[i] + "," + b[i + 1] + "," + b[i + 2] + ")";
+                ctx.fillRect(x, Math.abs(y - h), 1, 1);
+
+                //Used for color surfing
+                averagePixel.r += b[i];
+                averagePixel.g += b[i + 1];
+                averagePixel.b += b[i + 2];
+            }
+        }
+        averagePixel.r = Math.round(averagePixel.r / count);
+        averagePixel.g = Math.round(averagePixel.g / count);
+        averagePixel.b = Math.round(averagePixel.b / count);
+        detected = {x: xSum / count, y: ySum / count};
+
+        if (averagePixel.r > pickedColor[0]) {
+            pickedColor[0]++;
+        } else if (averagePixel.r < pickedColor[0]) {
+            pickedColor[0]--;
+        }
+        if (averagePixel.g > pickedColor[1]) {
+            pickedColor[1]++;
+        } else if (averagePixel.g < pickedColor[1]) {
+            pickedColor[1]--;
+        }
+        if (averagePixel.b > pickedColor[2]) {
+            pickedColor[2]++;
+        } else if (averagePixel.b < pickedColor[2]) {
+            pickedColor[2]--;
+        }
+    }
+
+    function drawCrossHair(detctX, detctY){
+        ctx.beginPath();
+        ctx.moveTo(0, detctY);
+        ctx.lineTo(640, detctY);
+        ctx.moveTo(detctX, 0);
+        ctx.lineTo(detctX, 360);
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function updateUIText(){
+        var pixelColor = "rgb(" + pickedColor[0] + ", " + pickedColor[1] + ", " + pickedColor[2] + ")";
+        $('#pickedColor').css('background-color', pixelColor);
+        $('#rVal').html("r: " + pickedColor[0]);
+        $('#gVal').html("b: " + pickedColor[1]);
+        $('#bVal').html("g: " + pickedColor[2]);
+        $('#targetRadius').html("radius: " + $scope.targetRadius);
+        lastCount = count;
+    }
+
+    //TODO implement yRadius/xRadius average for better consistency
     function getRadius(xCenter, yCenter){
         var s = frameBuffer;
+       // var sL = frameBuffer;
         var xDis = Math.abs(w-xCenter);
         ns.getImageData(s, xCenter, h-yCenter, xDis, 1);
-            var farthest = 0;
+        //ns.getImageData(sL, 0, h-yCenter, xCenter, 1);
+
+        //get farthest x to the right
+        var farthestXRight = 0;
+
         for(var i=0; i < (xDis*4);i+=4){
             var isMatch = (Math.abs(s[i] - pickedColor[0]) / 255 < maxDiff
             && Math.abs(s[i+1] - pickedColor[1]) / 255 < maxDiff
             && Math.abs(s[i+2] - pickedColor[2]) / 255 < maxDiff);
             if(isMatch){
-                farthest = i/4;
+                farthestXRight = i/4;
             }
         }
-        return farthest;
+
+        ////get farthest x to the left
+        //var farthestXLeft = 0;
+        //
+        //for(var i=sL.length; i < 0; i-=4){
+        //    var isMatch = (Math.abs(sL[i] - pickedColor[0]) / 255 < maxDiff
+        //    && Math.abs(sL[i+1] - pickedColor[1]) / 255 < maxDiff
+        //    && Math.abs(sL[i+2] - pickedColor[2]) / 255 < maxDiff);
+        //    if(isMatch){
+        //        farthestXLeft = Math.abs(((i-length)/4));
+        //    }
+        //}
+      //  var farthestX = farthestXRight+farthestXLeft;
+      //  console.log("WOOOOOO: "+farthestX);
+        return farthestXRight;
     }
     var flightButton = document.getElementById('flight');
     flightButton.addEventListener('click', function () {
