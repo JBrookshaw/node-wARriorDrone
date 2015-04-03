@@ -158,7 +158,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
 
     }
     function followFront(xVal, yVal, radi, radidiff){
-        client.clockwise(xVal / 6);
+        client.clockwise(xVal / 4);
         client.up(-yVal / 6);
         if(radi > 10) {
             if (radidiff < 0) {
@@ -173,8 +173,8 @@ myApp.controller('Controller', ['$scope', function ($scope) {
     }
 
     function orbit(xVal,yVal,radi, radidiff) {
-        client.clockwise(xVal / 4);
-        client.right(.1);
+        client.clockwise(xVal);
+        client.right(.05);
         client.up(-yVal / 6);
         if(radi > 10) {
             if (radidiff < 0) {
