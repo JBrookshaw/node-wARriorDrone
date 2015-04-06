@@ -88,33 +88,8 @@ myApp.controller('Controller', ['$scope', function ($scope) {
                     //TODO TEST THIS
                     //orbit(xVal,yVal,radi,radidiff);
 
-
-                    //client.clockwise(xVal / 6);
-                    ////client.right(xVal/6);
-                    //client.up(-yVal / 6);
-                    //console.log(xVal / 6);
-                    //if(radi > 10) {
-                    //    if (radidiff < 0) {
-                    //        client.front(.05);
-                    //    }
-                    //    else if(radidiff > 0) {
-                    //        client.front(-.05);
-                    //    }
-                    //} else{
-                    //    client.stop();
-                    //}
                 } else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
                     followBottom(xVal,yVal);
-                    //client.right(xVal/6);
-                    //client.front(-yVal/6);
-                    //console.log($scope.altitude);
-                    //if($scope.altitude < $scope.altitudeTarget) {
-                    //    client.up(.05);
-                    //}
-                    //else {
-                    //    client.up(-.05);
-                    //}
-
                 }
                 else {
                     client.stop();
