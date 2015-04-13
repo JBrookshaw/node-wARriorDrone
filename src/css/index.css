@@ -75,7 +75,8 @@ h4{
 
     width:200px;
     height: 720px;
-    background-image: url('../img/prpl-bg.png')
+    background-color: #cccccc;
+   // background-image: url('../img/prpl-bg.png')
 }
 .widget {
     margin:5px;

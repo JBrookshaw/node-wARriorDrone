@@ -8,7 +8,7 @@ var pickedColor = [192, 60, 60];
 var detected;
 var client = new WsClient();
 
-//TODO replace xVal/yVal with PID controllers
+//TODO replace xVal/yVal with PID controllers implementation
 var xPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
 var yPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
 var zPID = new PID({pGain: 0.1, iGain: 0, dGain: 0});
@@ -42,7 +42,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             $scope.battery = navdata.demo.batteryPercentage;
             $scope.altitude = navdata.demo.altitudeMeters;
             tempNavdata = navdata;
-            $('#battery').attr('value', navdata.demo.batteryPercentage)
+            $('#battery').attr('value', navdata.demo.batteryPercentage);
         }
     });
     $scope.maxDiff = 100;
@@ -85,7 +85,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             if (state === "follow" && !isNaN(xVal) && !isNaN(yVal)) {
                 if (camera_mode == CameraModes.FRONT_FOLLOW) {
                     followFront(xVal,yVal,radi,radidiff);
-                    //TODO TEST THIS
+
                     //orbit(xVal,yVal,radi,radidiff);
 
                 } else if(camera_mode == CameraModes.BOTTOM_FOLLOW){
@@ -95,7 +95,7 @@ myApp.controller('Controller', ['$scope', function ($scope) {
                     client.stop();
                 }
             } else {
-                client.stop()
+                client.stop();
             }
         interval = setInterval($scope.mainLoop, $scope.fps);
     }
@@ -151,14 +151,13 @@ myApp.controller('Controller', ['$scope', function ($scope) {
         client.clockwise(xVal);
         client.right(.05);
         client.up(-yVal / 6);
-        if(radi > 10) {
             if (radidiff < 0) {
                 client.front(.05);
             }
             else if(radidiff > 0) {
                 client.front(-.05);
             }
-        } else{
+        else{
             client.stop();
         }
     }
@@ -261,19 +260,6 @@ myApp.controller('Controller', ['$scope', function ($scope) {
             }
         }
 
-        ////get farthest x to the left
-        //var farthestXLeft = 0;
-        //
-        //for(var i=sL.length; i < 0; i-=4){
-        //    var isMatch = (Math.abs(sL[i] - pickedColor[0]) / 255 < maxDiff
-        //    && Math.abs(sL[i+1] - pickedColor[1]) / 255 < maxDiff
-        //    && Math.abs(sL[i+2] - pickedColor[2]) / 255 < maxDiff);
-        //    if(isMatch){
-        //        farthestXLeft = Math.abs(((i-length)/4));
-        //    }
-        //}
-      //  var farthestX = farthestXRight+farthestXLeft;
-      //  console.log("WOOOOOO: "+farthestX);
         return farthestXRight;
     }
     var flightButton = document.getElementById('flight');

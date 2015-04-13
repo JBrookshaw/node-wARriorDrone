@@ -10,11 +10,11 @@
 <body ng-app="myApp" ng-controller="Controller">
 
 <header>
-    <img src="dronestream/../../../src/img/warriordronelogo.png" alt="wARriorDrone2.0"/>
+    <img src="dronestream/../../../src/img/warriordronelogo.png"  alt="wARriorDrone2.0"/>
 </header>
 <div id="wrapper">
 <div id="leftWidgets" class="widget-container left">
-<button id="flight" class="btn">TakeOFF</button>
+
 
         <div class="widget">
             <label for="maxDiff">Color Sensitivity: {{maxDiff}}</label>
@@ -29,9 +29,11 @@
     <div class="widget">
     <h4>Battery:</h4>
     <progress id="battery" max="100" value={{battery}} >Battery Meter</progress>
+
     </div>
     <div id="switchCamera">
-        <button ng-click="switchCamera()">Switch Camera</button>
+        <button id="flight" class="btn"><img src ="dronestream/../../../src/img/takeoff.png" height="50" width="50"></button>
+        <button class="btn" ng-click="switchCamera()"><img src ="dronestream/../../../src/img/camera-switch-128.png" height="50" width="50"></button>
     </div>
 </div>
 <div id="streams" class="left">
